@@ -8,6 +8,7 @@
 #include <vector>
 #include <algorithm>
 
+
 template<typename T>
 class Matrix {
 
@@ -18,6 +19,9 @@ class Matrix {
         T** _matrix;
 
     public:
+        // Check for memory leaks
+        static size_t allocations;
+
         // Generate an instance
         Matrix();
 
@@ -66,8 +70,8 @@ class Matrix {
         // Delete rows
         void deleteRows(std::vector<size_t>& r);
 
-        // Add row
-        void addRow(std::vector<T>& r);
+        // Add rows
+        void addRows(Matrix<T>& rows);
 
         // Delete column
         void deleteColumn(size_t c);
@@ -82,6 +86,9 @@ class Matrix {
         Matrix<T> cho() const;
 };
 
+template<typename T>
+size_t Matrix<T>::allocations = 0;
+
 // TEMPLATE DEFINITIONS, ONLY-HEADER FILE IMPLEMENTATION!
 
 template<typename T>
@@ -93,6 +100,7 @@ Matrix<T>::Matrix(const size_t& r,const size_t& c) : _size1(r), _size2(c){
     _matrix = new T*[_size1];
     for (size_t i = 0; i < _size1; ++i){
       _matrix[i] = new T[_size2];
+      allocations++;
     };
 };
 
@@ -102,6 +110,7 @@ Matrix<T>::Matrix(const size_t& r,const size_t& c, T value) : _size1(r), _size2(
     _matrix = new T*[_size1];
     for (size_t i = 0; i < _size1; ++i){
       _matrix[i] = new T[_size2];
+      allocations++;
     };
 
     for (size_t i = 0; i < _size1; ++i){
@@ -119,13 +128,16 @@ Matrix<T>::Matrix(const Matrix& M)
     for (size_t i = 0; i < _size1; ++i) {
         _matrix[i] = new T[_size2];
         std::copy(M._matrix[i], M._matrix[i] + _size2, _matrix[i]);
+        allocations++;
     }
 }
 
 template<typename T>
 Matrix<T>::~Matrix() {
-    for (size_t i = 0; i < _size1; ++i)
+    for (size_t i = 0; i < _size1; ++i){
         delete[] _matrix[i];
+        allocations--;
+    };
     delete[] _matrix;
 }
 
@@ -305,23 +317,31 @@ void Matrix<T>::deleteRows(std::vector<size_t>& r){
 };
 
 template<typename T>
-void Matrix<T>::addRow(std::vector<T>& r){
+void Matrix<T>::addRows(Matrix<T>& r){
 
-    Matrix<T> newMatrix(_size1+1,_size2);
+    if (r.getSize()[1] != _size2){
+      throw std::invalid_argument("Given row size do not match with original matrix! (addrows)");
+    };
+
+    size_t newSize = _size1+r.getSize()[0];
+    Matrix<T> newMatrix(newSize,_size2);
 
     for (size_t i = 0; i < _size1; ++i){
         for (size_t j = 0; j < _size2; ++j){
 
-            newMatrix(i,j) = _matrix[i][j];
+            newMatrix(i,j) = (*this)(i,j);
         };
     };
 
-    for (size_t k = 0; k < _size2; ++k){
-        newMatrix(_size1+1,k) = r[k];
+    for (size_t k = _size1; k < newSize; ++k){
+        for (size_t m = 0; m < r.getSize()[1]; ++m){
+        newMatrix(k,m) = r(k-_size1,m);
+        };
     };
 
     *this = newMatrix;
 };
+
 
 template<typename T>
 void Matrix<T>::deleteColumn(size_t c){

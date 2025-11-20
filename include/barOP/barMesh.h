@@ -31,10 +31,11 @@ public:
 	const std::vector<size_t> findNodes(size_t elemID);
 
 	void addNodes(Matrix<double> & coords);
-	void deleteNodes(std::vector<int> & nodeIDs);
+	void deleteNodes(std::vector<size_t> & nodeIDs);
 
-	void connectNodes(std::vector<int> & nodeIDs);
-	void deleteElems(std::vector<int> & elemIDs);
+	void deleteElems(std::vector<size_t>& elemIDs);
+	void connectNodes(Matrix<size_t>& nodeIDs);
+
 
 };
 

@@ -82,6 +82,16 @@ int main() {
 
 	//M.printOut();
 	//std::cout << M.getSize()[0] << " " << M.getSize()[1];
+	std::cout << "Allocations before any matrix: "
+              << Matrix<int>::allocations << std::endl;  // should be 0
+
+    {
+        Matrix<int> A(2,3);
+        Matrix<int> B(3,3);
+
+        std::cout << "Allocations after creating A and B: "
+                  << Matrix<int>::allocations << std::endl; // should be 5 (2 + 3 rows)
+
 
 	Matrix<float> M2(5,5,1.f);
 
@@ -117,6 +127,12 @@ int main() {
       std::cout << result[i] << " " ;
 
     };
+
+    }
+
+    // A and B go out of scope, destructor called
+    std::cout << "Allocations after A and B destroyed: "
+              << Matrix<int>::allocations << std::endl; // should be 0
 
 	return EXIT_SUCCESS;
 

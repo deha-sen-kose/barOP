@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <cassert>
 #include <stdexcept>
-#include <iostream>
 #include <vector>
 
 #define dim 3 // dimensionality
@@ -94,86 +93,40 @@ const std::vector<size_t> barMesh::findNodes(size_t elemID) {
 
 void barMesh::addNodes(Matrix<double> & coords) {
 
-    if (coords.getSize()[0] == 0 || coords.getSize()[1] != 3){
+    if (coords.getSize()[0] == 0 || coords.getSize()[1] != dim){
       throw std::runtime_error("Coordinates are not 3D or do not exist! (addNodes) ");
     };
-	for (int i = 0; i < coords.getSize()[0]; i++) {
 
-		//_nodes.addRow(); // implement add nodes
-		_numNode += 1;
+    _nodes.addRows(coords);
 
-	};
+    _numNode += coords.getSize()[0];
+
 };
 
 void barMesh::deleteNodes(std::vector<size_t> & nodeIDs) {
+
+    if (nodeIDs.size() == 0 || nodeIDs.size() > _numNode){
+      throw std::invalid_argument("Node IDs do not exist or out of bounds! (addNodes)");
+    };
 
     std::sort(nodeIDs.begin(), nodeIDs.end());
 	nodeIDs.erase(std::unique(nodeIDs.begin(), nodeIDs.end()), nodeIDs.end());
     std::reverse(nodeIDs.begin(), nodeIDs.end());
 
-    if (nodeIDs.empty() || nodeIDs.size() >= _numNode){
-        throw std::runtime_error("Nodes to be deleted are either empty or outside of bounds!");
-    }
-    else if (nodeIDs.back() < 0 || nodeIDs[0] >= _numNode ) {
-        throw std::runtime_error("Provided node IDs do not exist!");
+    if (nodeIDs[0] >= _numNode){
+      throw std::invalid_argument("Node IDs are out of bounds! (addNodes)");
     };
 
-    for (int i = 0; i < nodeIDs.size() ; i++){
+    _nodes.deleteRows(nodeIDs);
+    _numNode -= nodeIDs.size();
 
-        std::cout << nodeIDs[i] << " ";
-    };
-
-   	// already sorted
-	std::vector<int> elemIDs = findElems(nodeIDs);
-
-	for (int j = 0; j < elemIDs.size() ; j++){
-
-        std::cout << elemIDs[j] << " ";
-    };
-
-	std::reverse(elemIDs.begin(), elemIDs.end());
-
-	for (int j = 0; j < elemIDs.size() ; j++){
-
-        std::cout << elemIDs[j] << " ";
-    };
-
-	int newSize = _numNode - nodeIDs.size();
-	std::vector<std::vector<float>> nodesTemp(newSize, {0,0,0});
-
-
-	for (int i = 0; i < nodeIDs.size(); i++) {
-	    for (int j = 0; j < _numNode; j++){
-
-				if (nodeIDs[i] != j){
-				    nodesTemp[j-i] = _nodes[i];
-				}
-		}
-	};
-	std::cout << '\n';
-	for (int i = 0; i < nodesTemp.size(); i++){
-	    for (int j = 0; j < 3 ; j++){
-
-					std::cout << nodesTemp[i][j] << " ";
-					}
-	    std::cout << '\n';
-	};
-
-	_numNode = _numNode - nodeIDs.size();
-
-	for (int i : elemIDs) {
-
-		_elements.erase(_elements.begin() + i);
-
-	};
-
-	_numEl = _numEl - elemIDs.size();
+    // Don't forget to check for affected elements!
 
 };
 
-void Bar3DMesh::deleteElems(std::vector<int>& elemIDs) {
+void barMesh::deleteElems(std::vector<size_t>& elemIDs) {
 
-	std::sort(elemIDs.begin(), elemIDs.end(), std::greater<int>());
+	std::sort(elemIDs.begin(), elemIDs.end(), std::greater<size_t>());
 
 	if (elemIDs.empty() || elemIDs.size() > _numEl){
 
@@ -184,38 +137,20 @@ void Bar3DMesh::deleteElems(std::vector<int>& elemIDs) {
 	    throw std::runtime_error("Given element ids are out of bounds!");
 	};
 
-	std::vector<int> nodeIDs;
+	_elements.deleteRows(elemIDs);
+	_numEl -= elemIDs.size();
 
-	for (int i : elemIDs) {
-
-		_elements.erase(_elements.begin() + i);
-
-		nodeIDs.push_back(_elements[i][0]);
-		nodeIDs.push_back(_elements[i][1]);
-
-	};
-
-	_numEl = _numEl - elemIDs.size();
-
-
-	std::sort(nodeIDs.begin(), nodeIDs.end());
-	nodeIDs.erase(std::unique(nodeIDs.begin(), nodeIDs.end()), nodeIDs.end());
-
-	std::reverse(nodeIDs.begin(), nodeIDs.end());
-
-	for (int i : nodeIDs) {
-
-		_nodes.erase(_nodes.begin() + i);
-
-	};
-
-	_numNode = _numNode - nodeIDs.size();
+	// Don't forget to check for affected nodes!
 
 };
 
-void barMesh::connectNodes(std::vector<int> & nodeIDs) {
+void barMesh::connectNodes(Matrix<size_t>& nodeIDs){
 
-	_elements.push_back(nodeIDs);
-	_numEl += 1;
+    if(nodeIDs.getSize()[0] == 0 || nodeIDs.getSize()[0] > _numNode){
+        throw std::invalid_argument("Given node IDs are out of bounds or do not exist! (barMesh/connectNodes)");
+    };
+
+	_elements.addRows(nodeIDs);
+	_numEl += nodeIDs.getSize()[0];
 
 };

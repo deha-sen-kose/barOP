@@ -547,3 +547,89 @@ TEST(MatrixLibTest, cho_4x4) {
     EXPECT_NEAR(L(3,2), 0.058, 1E-3);
     EXPECT_NEAR(L(3,3), 2.048, 1E-3);
 };
+
+TEST(MatrixLibTest, BasicAddRows) {
+    Matrix<int> A(2,3);
+    A(0,0)=1; A(0,1)=2; A(0,2)=3;
+    A(1,0)=4; A(1,1)=5; A(1,2)=6;
+
+    Matrix<int> B(2,3);
+    B(0,0)=7;  B(0,1)=8;  B(0,2)=9;
+    B(1,0)=10; B(1,1)=11; B(1,2)=12;
+
+    A.addRows(B);
+
+    EXPECT_EQ(A.getSize()[0], 4);
+    EXPECT_EQ(A.getSize()[1], 3);
+
+    EXPECT_EQ(A(0,0), 1); EXPECT_EQ(A(1,2), 6);
+    EXPECT_EQ(A(2,0), 7); EXPECT_EQ(A(3,2), 12);
+};
+
+
+TEST(MatrixLibTest, AddEmptyMatrix) {
+    Matrix<int> A(2,3);
+    A(0,0)=1; A(0,1)=2; A(0,2)=3;
+    A(1,0)=4; A(1,1)=5; A(1,2)=6;
+
+    Matrix<int> B(0,3); // empty rows
+
+    A.addRows(B);
+
+    EXPECT_EQ(A.getSize()[0], 2);
+    EXPECT_EQ(A.getSize()[1], 3);
+    EXPECT_EQ(A(1,2), 6); // original rows remain intact
+};
+
+
+TEST(MatrixLibTest, SelfAddition) {
+    Matrix<int> A(2,2);
+    A(0,0)=1; A(0,1)=2;
+    A(1,0)=3; A(1,1)=4;
+
+    A.addRows(A); // appending itself
+
+    EXPECT_EQ(A.getSize()[0], 4);
+    EXPECT_EQ(A.getSize()[1], 2);
+
+    // Original rows preserved
+    EXPECT_EQ(A(0,0), 1); EXPECT_EQ(A(0,1), 2);
+    EXPECT_EQ(A(1,0), 3); EXPECT_EQ(A(1,1), 4);
+
+    // Appended rows same as original
+    EXPECT_EQ(A(2,0), 1); EXPECT_EQ(A(2,1), 2);
+    EXPECT_EQ(A(3,0), 3); EXPECT_EQ(A(3,1), 4);
+};
+
+// --- Large matrix addition ---
+TEST(MatrixLibTest, LargeMatrixAddition) {
+    const int ROWS = 1000, COLS = 500;
+
+    Matrix<int> A(ROWS, COLS);
+    Matrix<int> B(ROWS, COLS);
+
+    // Fill A and B with deterministic values
+    for(int i=0;i<ROWS;++i)
+        for(int j=0;j<COLS;++j){
+            A(i,j) = i + j;
+            B(i,j) = i - j;
+        }
+
+    A.addRows(B);
+
+    EXPECT_EQ(A.getSize()[0], 2*ROWS);
+    EXPECT_EQ(A.getSize()[1], COLS);
+
+    // Check a few random values
+    EXPECT_EQ(A(0,0), 0);
+    EXPECT_EQ(A(ROWS,0), 0); // first row of B appended
+    EXPECT_EQ(A(ROWS-1,COLS-1), ROWS-1 + COLS-1);
+    EXPECT_EQ(A(2*ROWS-1,COLS-1), ROWS-1 - (COLS-1));
+};
+
+// --- Column mismatch should throw ---
+TEST(MatrixLibTest, ColumnMismatchThrows) {
+    Matrix<int> A(2,3);
+    Matrix<int> B(2,4); // wrong columns
+    EXPECT_THROW(A.addRows(B), std::invalid_argument);
+};

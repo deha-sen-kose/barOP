@@ -30,14 +30,14 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 # Generate shared libraries (dynamic)
-add_library(bar3Dmesh SHARED ${CMAKE_CURRENT_SOURCE_DIR}/src/Bar3DMesh.cpp)
+add_library(barMesh SHARED ${CMAKE_CURRENT_SOURCE_DIR}/src/barMesh.cpp)
 # add_library(matrix SHARED ${CMAKE_CURRENT_SOURCE_DIR}/include/math/Matrix.h)
 
 # Generate executable
 add_executable(barOP ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp)
 
 # Link libraries
-target_link_libraries(barOP bar3Dmesh)
+target_link_libraries(barOP barMesh)
 
 # Tell CMake there is a separete CMakeLists.txt in ./tests
 # add_subdirectory(tests)
@@ -52,7 +52,7 @@ add_executable(unitTests ${CMAKE_CURRENT_SOURCE_DIR}/tests/unitTests.cpp)
 
 target_link_libraries(unitTests PRIVATE
 
-    bar3Dmesh
+    barMesh
     GTest::gtest
     # Provides a main function for googletests
     GTest::gtest_main
