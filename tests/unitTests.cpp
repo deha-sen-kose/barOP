@@ -209,6 +209,8 @@ TEST(barMeshTest, deleteElems){
 */
 TEST(MatrixLibTest, mVm){
 
+    Matrix<int>::allocations = 0;
+    {
     Matrix<int> M(2,2);
     M(0,0) = 1;
     M(0,1) = 2;
@@ -223,9 +225,14 @@ TEST(MatrixLibTest, mVm){
 
     std::vector<int> vec2= {5,6,8};
     EXPECT_THROW(M.mVm(vec2), std::invalid_argument);
+
+    }
+    EXPECT_EQ(Matrix<int>::allocations, 0);
 };
 
 TEST(MatrixLibTest, deleteColumns){
+    Matrix<int>::allocations = 0;
+    {
 
     Matrix<int> M(4,4);
     M(0,0) = 1; M(0,1) = 2; M(0,2) = 3; M(0,3) = 4;
@@ -255,9 +262,15 @@ TEST(MatrixLibTest, deleteColumns){
 
     std::vector<size_t> colID2 = {0,2,8};
     EXPECT_THROW(M.deleteColumns(colID2), std::out_of_range);
+
+    }
+    EXPECT_EQ(Matrix<int>::allocations, 0);
 };
 
 TEST(MatrixLibTest, deleteRows){
+
+    Matrix<int>::allocations = 0;
+    {
 
     Matrix<int> M(4,4);
     M(0,0) = 1; M(0,1) = 1; M(0,2) = 1; M(0,3) = 1;
@@ -285,10 +298,16 @@ TEST(MatrixLibTest, deleteRows){
     }
 
     std::vector<size_t> rowID2 = {0,2,8};
-    EXPECT_THROW(M.deleteColumns(rowID2), std::out_of_range);
+    EXPECT_THROW(M.deleteRows(rowID2), std::out_of_range);
+
+    }
+    EXPECT_EQ(Matrix<int>::allocations, 0);
 };
 
 TEST(MatrixLibTest, operatorCross){
+
+    Matrix<int>::allocations = 0;
+    {
 
     Matrix<int> A(2, 3);
     A(0,0) = 1; A(0,1) = 2; A(0,2) = 3;
@@ -311,9 +330,14 @@ TEST(MatrixLibTest, operatorCross){
     }
 
     EXPECT_ANY_THROW(A*C);
+    }
+    EXPECT_EQ(Matrix<int>::allocations, 0);
 };
 
 TEST(MatrixLibTest, operatorMinus){
+
+    Matrix<int>::allocations = 0;
+    {
 
     Matrix<int> A(3, 3);
         A(0,0)=5; A(0,1)=7; A(0,2)=2;
@@ -337,9 +361,14 @@ TEST(MatrixLibTest, operatorMinus){
                 EXPECT_EQ(C(i,j), C_expected(i,j));
             }
         }
+    }
+    EXPECT_EQ(Matrix<int>::allocations, 0);
 };
 
 TEST(MatrixLibTest, operatorPlus){
+
+    Matrix<int>::allocations = 0;
+    {
 
     Matrix<int> A(3, 3);
         A(0,0)=1; A(0,1)=2; A(0,2)=3;
@@ -364,9 +393,14 @@ TEST(MatrixLibTest, operatorPlus){
                 EXPECT_EQ(C(i,j), C_expected(i,j));
             }
         }
+    }
+    EXPECT_EQ(Matrix<int>::allocations, 0);
 };
 
 TEST(MatrixLibTest, transposeSize){
+
+    Matrix<int>::allocations = 0;
+    {
 
     Matrix<double> A(2, 3);
 
@@ -379,9 +413,14 @@ TEST(MatrixLibTest, transposeSize){
         // Dimensions should swap
         EXPECT_EQ(T.getSize()[0], 3);
         EXPECT_EQ(T.getSize()[1], 2);
+    }
+    EXPECT_EQ(Matrix<int>::allocations, 0);
 };
 
 TEST(MatrixLibTest, transposeValues) {
+
+    Matrix<int>::allocations = 0;
+    {
 
     Matrix<int> A(3, 2);
     A(0,0) = 10; A(0,1) = 20;
@@ -397,9 +436,16 @@ TEST(MatrixLibTest, transposeValues) {
     EXPECT_EQ(T(1,1), 40);
     EXPECT_EQ(T(0,2), 50);
     EXPECT_EQ(T(1,2), 60);
+
+    }
+    EXPECT_EQ(Matrix<int>::allocations, 0);
 };
 
 TEST(MatrixLibTest, transposeSquare) {
+
+    Matrix<int>::allocations = 0;
+    {
+
     Matrix<float> A(2, 2);
     A(0,0) = 1.5f; A(0,1) = 2.5f;
     A(1,0) = 3.5f; A(1,1) = 4.5f;
@@ -410,9 +456,15 @@ TEST(MatrixLibTest, transposeSquare) {
     EXPECT_FLOAT_EQ(T(1,0), 2.5f);
     EXPECT_FLOAT_EQ(T(0,1), 3.5f);
     EXPECT_FLOAT_EQ(T(1,1), 4.5f);
+    }
+    EXPECT_EQ(Matrix<int>::allocations, 0);
 };
 
 TEST(MatrixLibTest, transposeOneElement) {
+
+    Matrix<int>::allocations = 0;
+    {
+
     Matrix<double> A(1, 1);
     A(0,0) = 42.0;
 
@@ -421,9 +473,15 @@ TEST(MatrixLibTest, transposeOneElement) {
     EXPECT_EQ(T.getSize()[0], 1);
     EXPECT_EQ(T.getSize()[1], 1);
     EXPECT_DOUBLE_EQ(T(0,0), 42.0);
+    }
+    EXPECT_EQ(Matrix<int>::allocations, 0);
 };
 
 TEST(MatrixLibTest, transposeVector) {
+
+    Matrix<int>::allocations = 0;
+    {
+
     Matrix<int> A(1, 4);
     A(0,0) = 7;
     A(0,1) = 8;
@@ -440,9 +498,15 @@ TEST(MatrixLibTest, transposeVector) {
     EXPECT_EQ(T(1,0), 8);
     EXPECT_EQ(T(2,0), 9);
     EXPECT_EQ(T(3,0), 10);
+    }
+    EXPECT_EQ(Matrix<int>::allocations, 0);
 };
 
 TEST(MatrixLibTest, choSPD_2x2) {
+
+    Matrix<int>::allocations = 0;
+    {
+
     Matrix<double> A(2,2);
     A(0,0)=4;  A(0,1)=2;
     A(1,0)=2;  A(1,1)=3;
@@ -453,9 +517,15 @@ TEST(MatrixLibTest, choSPD_2x2) {
     EXPECT_DOUBLE_EQ(L(0,1), 0.0);
     EXPECT_DOUBLE_EQ(L(1,0), 1.0);
     EXPECT_DOUBLE_EQ(L(1,1), 1.4142135623730951);
+    }
+    EXPECT_EQ(Matrix<int>::allocations, 0);
 };
 
 TEST(MatrixLibTest, choSPD_3x3_Strict) {
+
+    Matrix<int>::allocations = 0;
+    {
+
     Matrix<double> A(3,3);
     A(0,0)=4;   A(0,1)=12;  A(0,2)=-16;
     A(1,0)=12;  A(1,1)=37;  A(1,2)=-43;
@@ -474,9 +544,15 @@ TEST(MatrixLibTest, choSPD_3x3_Strict) {
     EXPECT_DOUBLE_EQ(L(2,0), -8.0);
     EXPECT_DOUBLE_EQ(L(2,1), 5.0);
     EXPECT_DOUBLE_EQ(L(2,2), 3.0);
+    }
+    EXPECT_EQ(Matrix<int>::allocations, 0);
 };
 
 TEST(MatrixLibTest, choIdentityMatrix3x3) {
+
+    Matrix<int>::allocations = 0;
+    {
+
     Matrix<double> A(3,3);
     A(0,0)=1; A(0,1)=0; A(0,2)=0;
     A(1,0)=0; A(1,1)=1; A(1,2)=0;
@@ -495,9 +571,15 @@ TEST(MatrixLibTest, choIdentityMatrix3x3) {
     EXPECT_DOUBLE_EQ(L(2,0), 0.0);
     EXPECT_DOUBLE_EQ(L(2,1), 0.0);
     EXPECT_DOUBLE_EQ(L(2,2), 1.0);
+    }
+    EXPECT_EQ(Matrix<int>::allocations, 0);
 };
 
 TEST(MatrixLibTest, choDiagonalSPD) {
+
+    Matrix<int>::allocations = 0;
+    {
+
     Matrix<double> A(3,3);
     A(0,0)=4;  A(0,1)=0;  A(0,2)=0;
     A(1,0)=0;  A(1,1)=9;  A(1,2)=0;
@@ -516,9 +598,15 @@ TEST(MatrixLibTest, choDiagonalSPD) {
     EXPECT_DOUBLE_EQ(L(2,0), 0.0);
     EXPECT_DOUBLE_EQ(L(2,1), 0.0);
     EXPECT_DOUBLE_EQ(L(2,2), 4.0);
+    }
+    EXPECT_EQ(Matrix<int>::allocations, 0);
 };
 
 TEST(MatrixLibTest, cho_4x4) {
+
+    Matrix<int>::allocations = 0;
+    {
+
     Matrix<double> K(4,4);
     K(0,0)=4.718;  K(0,1)=0.282; K(0,2)=0.2; K(0,3)=0.326;
     K(1,0)=0.282; K(1,1)=4.135;  K(1,2)=0.052;  K(1,3)=0.0;
@@ -546,9 +634,15 @@ TEST(MatrixLibTest, cho_4x4) {
     EXPECT_NEAR(L(3,1), -0.009, 1E-3);
     EXPECT_NEAR(L(3,2), 0.058, 1E-3);
     EXPECT_NEAR(L(3,3), 2.048, 1E-3);
+    }
+    EXPECT_EQ(Matrix<int>::allocations, 0);
 };
 
 TEST(MatrixLibTest, BasicAddRows) {
+
+    Matrix<int>::allocations = 0;
+    {
+
     Matrix<int> A(2,3);
     A(0,0)=1; A(0,1)=2; A(0,2)=3;
     A(1,0)=4; A(1,1)=5; A(1,2)=6;
@@ -564,10 +658,17 @@ TEST(MatrixLibTest, BasicAddRows) {
 
     EXPECT_EQ(A(0,0), 1); EXPECT_EQ(A(1,2), 6);
     EXPECT_EQ(A(2,0), 7); EXPECT_EQ(A(3,2), 12);
+
+    }
+    EXPECT_EQ(Matrix<int>::allocations, 0);
 };
 
 
 TEST(MatrixLibTest, AddEmptyMatrix) {
+
+    Matrix<int>::allocations = 0;
+    {
+
     Matrix<int> A(2,3);
     A(0,0)=1; A(0,1)=2; A(0,2)=3;
     A(1,0)=4; A(1,1)=5; A(1,2)=6;
@@ -579,10 +680,17 @@ TEST(MatrixLibTest, AddEmptyMatrix) {
     EXPECT_EQ(A.getSize()[0], 2);
     EXPECT_EQ(A.getSize()[1], 3);
     EXPECT_EQ(A(1,2), 6); // original rows remain intact
+
+    }
+    EXPECT_EQ(Matrix<int>::allocations, 0);
 };
 
 
 TEST(MatrixLibTest, SelfAddition) {
+
+    Matrix<int>::allocations = 0;
+    {
+
     Matrix<int> A(2,2);
     A(0,0)=1; A(0,1)=2;
     A(1,0)=3; A(1,1)=4;
@@ -599,22 +707,29 @@ TEST(MatrixLibTest, SelfAddition) {
     // Appended rows same as original
     EXPECT_EQ(A(2,0), 1); EXPECT_EQ(A(2,1), 2);
     EXPECT_EQ(A(3,0), 3); EXPECT_EQ(A(3,1), 4);
+
+    }
+    EXPECT_EQ(Matrix<int>::allocations, 0);
 };
 
 // --- Large matrix addition ---
 TEST(MatrixLibTest, LargeMatrixAddition) {
+
+    Matrix<int>::allocations = 0;
+    {
+
     const int ROWS = 1000, COLS = 500;
 
     Matrix<int> A(ROWS, COLS);
     Matrix<int> B(ROWS, COLS);
 
     // Fill A and B with deterministic values
-    for(int i=0;i<ROWS;++i)
+    for(int i=0;i<ROWS;++i){
         for(int j=0;j<COLS;++j){
             A(i,j) = i + j;
             B(i,j) = i - j;
         }
-
+    }
     A.addRows(B);
 
     EXPECT_EQ(A.getSize()[0], 2*ROWS);
@@ -625,11 +740,20 @@ TEST(MatrixLibTest, LargeMatrixAddition) {
     EXPECT_EQ(A(ROWS,0), 0); // first row of B appended
     EXPECT_EQ(A(ROWS-1,COLS-1), ROWS-1 + COLS-1);
     EXPECT_EQ(A(2*ROWS-1,COLS-1), ROWS-1 - (COLS-1));
+
+    }
+    EXPECT_EQ(Matrix<int>::allocations, 0);
 };
 
 // --- Column mismatch should throw ---
 TEST(MatrixLibTest, ColumnMismatchThrows) {
+
+    Matrix<int>::allocations = 0;
+    {
+
     Matrix<int> A(2,3);
     Matrix<int> B(2,4); // wrong columns
     EXPECT_THROW(A.addRows(B), std::invalid_argument);
+    }
+    EXPECT_EQ(Matrix<int>::allocations, 0);
 };

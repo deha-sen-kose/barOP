@@ -20,7 +20,7 @@ class Matrix {
 
     public:
         // Check for memory leaks
-        static size_t allocations;
+        static int allocations;
 
         // Generate an instance
         Matrix();
@@ -87,7 +87,7 @@ class Matrix {
 };
 
 template<typename T>
-size_t Matrix<T>::allocations = 0;
+int Matrix<T>::allocations = 0;
 
 // TEMPLATE DEFINITIONS, ONLY-HEADER FILE IMPLEMENTATION!
 
@@ -180,8 +180,10 @@ Matrix<T>& Matrix<T>::operator=(const Matrix& M)
     if (this == &M) return *this;
 
     // free old memory
-    for (size_t i = 0; i < _size1; ++i)
+    for (size_t i = 0; i < _size1; ++i){
         delete[] _matrix[i];
+        allocations--;
+    }
     delete[] _matrix;
 
     // allocate new
@@ -191,6 +193,7 @@ Matrix<T>& Matrix<T>::operator=(const Matrix& M)
     for (size_t i = 0; i < _size1; ++i) {
         _matrix[i] = new T[_size2];
         std::copy(M._matrix[i], M._matrix[i] + _size2, _matrix[i]);
+        allocations++;
     }
     return *this;
 };
@@ -278,6 +281,7 @@ void Matrix<T>::deleteRow(size_t r) {
 
     // Delete row
     delete[] _matrix[r];
+    allocations--;
 
     // Shift remaining row pointers up
     for (size_t i = r; i < _size1 - 1; ++i)
@@ -353,6 +357,7 @@ void Matrix<T>::deleteColumn(size_t c){
     for (size_t i = 0; i < _size1; ++i){
 
         T* newRow = new T[_size2 - 1];
+        allocations++;
 
         for (size_t j = 0, nj = 0; j < _size2; ++j){
 
@@ -362,6 +367,7 @@ void Matrix<T>::deleteColumn(size_t c){
             };
         };
         delete[] _matrix[i];
+        allocations--;
         _matrix[i] = newRow;
     };
     --_size2;
