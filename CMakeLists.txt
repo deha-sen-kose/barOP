@@ -22,8 +22,8 @@ add_dependencies(copy_compile_commands ${ALL_BUILD_TARGETS})
 project(barOP CXX)
 
 # Set build options
-set(CMAKE_CXX_FLAGS "-g") # debug mode
-set(CMAKE_CXX_FLAGS "-O2 -march=native -std=c++17 ") # release mode
+# set(CMAKE_CXX_FLAGS "-g") # debug mode
+# set(CMAKE_CXX_FLAGS "-O2 -march=native -std=c++17 ") # release mode
 
 # Include directories
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
@@ -31,7 +31,6 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 # Generate shared libraries (dynamic)
 add_library(barMesh SHARED ${CMAKE_CURRENT_SOURCE_DIR}/src/barMesh.cpp)
-# add_library(matrix SHARED ${CMAKE_CURRENT_SOURCE_DIR}/include/math/Matrix.h)
 
 # Generate executable
 add_executable(barOP ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp)
@@ -40,25 +39,4 @@ add_executable(barOP ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp)
 target_link_libraries(barOP barMesh)
 
 # Tell CMake there is a separete CMakeLists.txt in ./tests
-# add_subdirectory(tests)
-
-find_package(GTest CONFIG REQUIRED)
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-
-# Add testing
-enable_testing()
-
-add_executable(unitTests ${CMAKE_CURRENT_SOURCE_DIR}/tests/unitTests.cpp)
-
-target_link_libraries(unitTests PRIVATE
-
-    barMesh
-    GTest::gtest
-    # Provides a main function for googletests
-    GTest::gtest_main
-
-)
-
-# Register the tests
-include(GoogleTest)
-gtest_discover_tests(unitTests)
+include(${CMAKE_CURRENT_SOURCE_DIR}/tests/CMakeLists.txt)

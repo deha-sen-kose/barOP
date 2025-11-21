@@ -3,6 +3,7 @@
 
 #include <cmath>
 #include <cstddef>
+#include <initializer_list>
 #include <iostream>
 #include <stdexcept>
 #include <vector>
@@ -28,8 +29,11 @@ class Matrix {
         // Empty constructor
         Matrix(const size_t& r, const size_t& c);
 
-        // Numeric constructor
+        // Numeric constructor -- all is set to the same value
         Matrix(const size_t& r, const size_t& c, T value);
+
+        // List initializer
+        Matrix(std::initializer_list<std::initializer_list<T>> init);
 
         // Copy constructor
         Matrix(const Matrix& M);
@@ -121,6 +125,37 @@ Matrix<T>::Matrix(const size_t& r,const size_t& c, T value) : _size1(r), _size2(
 };
 
 template<typename T>
+Matrix<T>::Matrix(std::initializer_list<std::initializer_list<T>> init){
+
+    _size1 = init.size();
+    _size2 = init.begin()->size();
+
+    size_t m = 0;
+    for (const auto& row : init) {
+        if (row.size() != _size2)
+            throw std::runtime_error("Rows must all have equal size");
+        m++;
+    }
+
+    _matrix = new T*[_size1];
+    for (size_t i = 0; i < _size1; ++i){
+      _matrix[i] = new T[_size2];
+      allocations++;
+    };
+
+    size_t i = 0;
+        for (const auto& row : init) {
+
+            size_t j = 0;
+            for (const auto& value : row) {
+                _matrix[i][j++] = value;
+            }
+            i++;
+        }
+
+};
+
+template<typename T>
 Matrix<T>::Matrix(const Matrix& M)
     : _size1(M._size1), _size2(M._size2)
 {
@@ -203,8 +238,10 @@ const void Matrix<T>::printOut(){
 
     std::cout << "[";
     for (size_t i = 0; i < _size1; ++i){
+        if(i != 0) std::cout << " ";
         for (size_t j = 0; j < _size2; ++j){
-            std::cout << _matrix[i][j] << ", ";
+            std::cout << _matrix[i][j];
+           if(i != _size1-1 || j !=_size2-1) std::cout << ", ";
         }
         if (i != _size1-1){std::cout << '\n';};
     }

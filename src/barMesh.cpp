@@ -1,9 +1,7 @@
 #include "../include/barOP/barMesh.h"
-#include "math/Matrix.h"
+#include "../include/math/Matrix.h"
 #include <algorithm>
-#include <cassert>
 #include <stdexcept>
-#include <vector>
 
 #define dim 3 // dimensionality
 #define nnpe 2 // number of nodes per element
@@ -12,23 +10,24 @@ barMesh::barMesh() : _numEl(0), _numNode(0){
 
     Matrix<double> nodes(_numNode, dim, double{0});
     _nodes = nodes;
-    //nodes.~Matrix();
 
     Matrix<size_t> elems(_numEl, nnpe, double{0});
     _elements = elems;
-    //elems.~Matrix();
 
 };
 
 barMesh::barMesh(size_t numEl, size_t numNode, Matrix<double> & nodes,
-	Matrix<size_t>& elements) : 	_numEl (numEl), _numNode (numNode),
-                                _nodes (nodes), _elements (elements){};
-
-barMesh::~barMesh(){
-
-    _nodes.~Matrix();
-    _elements.~Matrix();
+	Matrix<size_t>& elements) : _numEl (numEl), _numNode (numNode)
+{
+	if (nodes.getSize()[1] != dim) {throw std::invalid_argument("Given nodes are not 3D! (barMesh)");}
+	else if (elements.getSize()[1] != nnpe) {throw std::invalid_argument("Given elements support more than 2-nodes! (barMesh)");}
+	else{
+	_nodes = nodes;
+	_elements = elements;
+	};
 };
+
+barMesh::~barMesh() = default;
 
 const size_t barMesh::getNumEl(){
 	return _numEl;
@@ -38,7 +37,7 @@ const size_t barMesh::getNumNode(){
 	return _numNode;
 };
 
-const Matrix<double> barMesh::getNodes() {
+const Matrix<double> barMesh::getNodes(){
 	return _nodes;
 };
 
