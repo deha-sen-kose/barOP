@@ -89,8 +89,11 @@ class Matrix {
         // Matrix vector multiplication
         std::vector<T> mVm(const std::vector<T>& vec) const;
 
-        // Incomplete Cholesky Decomposition
+        // Cholesky Decomposition
         Matrix<T> cho() const;
+
+        // Compute inverse of a lower triangular matrix
+        Matrix<T> L_inverse() const;
 };
 
 template<typename T>
@@ -512,6 +515,41 @@ Matrix<T> Matrix<T>::cho() const{
     };
 
     return L;
+};
+
+template<typename T>
+Matrix<T> Matrix<T>::L_inverse() const {
+
+    Matrix<T> L = *this;
+    if (L.getSize()[0] != L.getSize()[1]){
+      throw std::invalid_argument("Given triangular matrix is not square! (Matrix::L_inverse)");
+    }
+    for (size_t i = 0; i < L.getSize()[0]; ++i){
+        for (size_t j = 0; j < L.getSize()[1]; ++j){
+          if (j > i){
+            if (L(i,j) != 0){
+                throw std::invalid_argument("Given matrix is not triangular! (Matrix::L_inverse)");
+            };
+          };
+        };
+    };
+    Matrix<T> M(L.getSize()[0], L.getSize()[1], T{0});
+
+    T sum;
+    for (size_t j = 0; j < L.getSize()[0]; ++j){
+        M(j,j) = T{1}/L(j,j);
+        for (size_t i = j+1; i < L.getSize()[0]; ++i){
+         sum = {0};
+         for(size_t k = j; k < i; ++k){
+
+             sum += L(i,k)*M(k,j);
+         };
+
+         M(i,j) = -sum/L(i,i);
+        };
+    };
+
+    return M;
 };
 
 #endif

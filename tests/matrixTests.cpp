@@ -779,3 +779,44 @@ TEST(MatrixLibTest, ColumnMismatchThrows)
     }
     EXPECT_EQ(Matrix<int>::allocations, 0);
 };
+
+TEST(MatrixLibTest, LowerTriangularInverse) {
+
+    // --- Construct known lower triangular matrix ---
+    //
+    //  L = [ 2   0   0 ]
+    //      [ 3   1   0 ]
+    //      [ 1   4   5 ]
+    //
+    Matrix<double> L(3,3,0.0);
+
+    L(0,0) = 2.0;
+
+    L(1,0) = 3.0;
+    L(1,1) = 1.0;
+
+    L(2,0) = 1.0;
+    L(2,1) = 4.0;
+    L(2,2) = 5.0;
+
+    // --- Compute inverse ---
+    Matrix<double> Linv = L.L_inverse();
+
+    // --- Compute product L * Linv ---
+    Matrix<double> I = L * Linv;
+
+    // --- Check identity matrix ---
+    const double EPS = 1e-9;
+
+    for (size_t i = 0; i < 3; ++i) {
+        for (size_t j = 0; j < 3; ++j) {
+
+            if (i == j) {
+                EXPECT_NEAR(I(i,j), 1.0, EPS);
+            } else {
+                EXPECT_NEAR(I(i,j), 0.0, EPS);
+            }
+
+        }
+    }
+}

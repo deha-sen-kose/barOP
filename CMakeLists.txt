@@ -30,13 +30,14 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 # Generate shared libraries (dynamic)
-add_library(barMesh SHARED ${CMAKE_CURRENT_SOURCE_DIR}/src/barMesh.cpp)
+add_library(trussStructure SHARED ${CMAKE_CURRENT_SOURCE_DIR}/src/trussStructure.cpp
+                                  ${CMAKE_CURRENT_SOURCE_DIR}/src/trussElement.cpp)
 
 # Generate executable
 add_executable(barOP ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp)
 
 # Link libraries
-target_link_libraries(barOP barMesh)
+target_link_libraries(barOP trussStructure)
 
 # Tell CMake there is a separete CMakeLists.txt in ./tests
 include(${CMAKE_CURRENT_SOURCE_DIR}/tests/CMakeLists.txt)

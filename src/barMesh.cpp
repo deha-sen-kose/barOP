@@ -120,7 +120,11 @@ void barMesh::deleteNodes(std::vector<size_t> & nodeIDs) {
     _numNode -= nodeIDs.size();
 
     // Don't forget to check for affected elements!
+    //
 
+    std::vector<size_t> elemIDs = findElems(nodeIDs);
+    _elements.deleteRows(elemIDs);
+    _numEl -= elemIDs.size();
 };
 
 void barMesh::deleteElems(std::vector<size_t>& elemIDs) {
