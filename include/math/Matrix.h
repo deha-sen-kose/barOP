@@ -42,10 +42,10 @@ class Matrix {
         ~Matrix();
 
         // Get size
-        const std::vector<size_t> getSize();
+        std::vector<size_t> getSize() const;
 
         // Print out matrix.
-        const void printOut();
+        void printOut() const;
 
         // Read-write operator
         T& operator()(const size_t& r, const size_t& c);
@@ -64,6 +64,9 @@ class Matrix {
 
         // Multiply matrices
         Matrix<T> operator*(const Matrix<T>& M2) const;
+
+        // Multiply with a scalar
+        Matrix<T> operator*(T scalar) const;
 
         // Transpose
         Matrix<T> transpose() const;
@@ -84,7 +87,7 @@ class Matrix {
         void deleteColumns(std::vector<size_t>& c);
 
         // Matrix vector multiplication
-        const std::vector<T> mVm(const std::vector<T>& vec) const;
+        std::vector<T> mVm(const std::vector<T>& vec) const;
 
         // Incomplete Cholesky Decomposition
         Matrix<T> cho() const;
@@ -177,7 +180,7 @@ Matrix<T>::~Matrix() {
 }
 
 template<typename T>
-const std::vector<size_t> Matrix<T>::getSize(){
+std::vector<size_t> Matrix<T>::getSize() const{
 
     std::vector<size_t> result(2);
 
@@ -234,7 +237,7 @@ Matrix<T>& Matrix<T>::operator=(const Matrix& M)
 };
 
 template<typename T>
-const void Matrix<T>::printOut(){
+void Matrix<T>::printOut() const{
 
     std::cout << "[";
     for (size_t i = 0; i < _size1; ++i){
@@ -308,6 +311,18 @@ Matrix<T> Matrix<T>::operator*(const Matrix<T>& M2) const{
         };
     };
 
+    return result;
+};
+
+template<typename T>
+Matrix<T> Matrix<T>::operator*(T scalar) const{
+
+    Matrix<T> result(*this);
+    for (size_t i = 0; i < _size1; ++i){
+        for (size_t j = 0; j < _size2; ++j){
+          result(i,j) = (*this)(i,j) * scalar;
+        };
+    };
     return result;
 };
 
@@ -436,7 +451,7 @@ void Matrix<T>::deleteColumns(std::vector<size_t>& c){
 };
 
 template<typename T>
-const std::vector<T> Matrix<T>::mVm(const std::vector<T>& vec) const{
+std::vector<T> Matrix<T>::mVm(const std::vector<T>& vec) const{
 
     if (_size2 != vec.size()){
 
