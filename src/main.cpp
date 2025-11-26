@@ -1,14 +1,19 @@
-#include "barOP/trussStructure.h"
-#include "barOP/material.h"
-#include "barOP/trussElement.h"
+#include "../include/barOP/trussStructure.h"
+#include "../include/barOP/material.h"
+#include "../include/barOP/trussElement.h"
 #include "../include/visualization/trussVis.h"
 #include <cstdio>
 #include <iostream>
 #include <cstdlib>
 #include <vector>
 
-
 int main(){
+
+    #ifdef NDEBUG
+        std::cout << "Release build" << std::endl;
+    #else
+        std::cout << "Debug build" << std::endl;
+    #endif
 
     TrussStructure struct1;
 
