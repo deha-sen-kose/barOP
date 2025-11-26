@@ -21,6 +21,16 @@ std::vector<int> TrussElement::getDOF() const{
       return DOF;
   };
 
+Node& TrussElement::getNode1() const {
+
+    return _node1;
+};
+
+Node& TrussElement::getNode2() const {
+
+    return _node2;
+};
+
 
 Matrix<double> TrussElement::computeGlobalStiffnessMtx() const{
 

@@ -17,6 +17,10 @@ public:
 
   TrussElement(int id, Node& node1, Node& node2, Material& Mat, double A);
 
+  Node& getNode1() const;
+
+  Node& getNode2() const;
+
   std::vector<int> getDOF() const override;
 
   Matrix<double> computeGlobalStiffnessMtx() const override;

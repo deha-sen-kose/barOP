@@ -1,16 +1,16 @@
-#include "../include/barOP/trussStructure.h"
+#include "barOP/trussStructure.h"
 #include "barOP/material.h"
 #include "barOP/trussElement.h"
+#include "../include/visualization/trussVis.h"
 #include <cstdio>
 #include <iostream>
 #include <cstdlib>
 #include <vector>
 
+
 int main(){
 
     TrussStructure struct1;
-
-
 
     Node& n1 = struct1.addNode(0, 0, 0);
     Node& n2 = struct1.addNode(40, 0, 0);
@@ -60,6 +60,10 @@ int main(){
      std::cout << u_red[i] << " ";
 
    };
+
+    std::cout << std::endl;
+
+    visualizeTrussSystem(struct1);
 
 
     return EXIT_SUCCESS;
