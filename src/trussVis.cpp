@@ -1,84 +1,220 @@
 #include "../include/visualization/trussVis.h"
-#include <vector>
 
-void visualizeTrussSystem(TrussStructure& trussSystem, std::vector<double>& displacementVec)
+TrussVisualization::TrussVisualization(TrussStructure& trussSystem)
 {
-    vtkNew<vtkPoints> points;
-
     int numNodes = trussSystem.getNodes().size();
     int numElems = trussSystem.getElements().size();
 
-    for (int i = 0; i < numNodes; i++) {
-
-
-        std::vector<double> nodePosition = trussSystem.getNodes()[i]->getPosition();
-        points->InsertNextPoint(nodePosition[0],nodePosition[1],nodePosition[2]);
-    };
-
-    vtkNew<vtkUnstructuredGrid> ugrid;
-    ugrid->SetPoints(points);
-
-    for (int e = 0; e < numElems; e++) {
-        vtkNew<vtkLine> line;
-        Node& nodeff = trussSystem.getElements()[e]->getNode1();
-        Node& nodell = trussSystem.getElements()[e]->getNode2();
-        line->GetPointIds()->SetId(0, nodeff.getID()-1);
-        line->GetPointIds()->SetId(1, nodell.getID()-1);
-
-        ugrid->InsertNextCell(VTK_LINE, line->GetPointIds());
+    // --- Points ---
+    points = vtkSmartPointer<vtkPoints>::New();
+    for (int i = 0; i < numNodes; ++i)
+    {
+        std::vector<double> pos = trussSystem.getNodes()[i]->getPosition();
+        points->InsertNextPoint(pos[0], pos[1], pos[2]);
     }
 
-    vtkNew<vtkDoubleArray> elStresses;
-    elStresses->SetName("Stress");
-    elStresses->SetNumberOfComponents(1);
+    // --- Grid ---
+    ugrid = vtkSmartPointer<vtkUnstructuredGrid>::New();
+    ugrid->SetPoints(points);
 
-    int numElements = trussSystem.getElements().size();
-    for (int e = 0; e < numElements; e++) {
-        elStresses->InsertNextValue(std::abs(trussSystem.getElements()[e]->computeElStress(displacementVec)));
-    };
-    ugrid->GetCellData()->AddArray(elStresses);
+    if (numElems > 0)
+    {
+        for (int e = 0; e < numElems; ++e)
+        {
+            vtkNew<vtkLine> line;
+            Node& n1 = trussSystem.getElements()[e]->getNode1();
+            Node& n2 = trussSystem.getElements()[e]->getNode2();
+            line->GetPointIds()->SetId(0, n1.getID() - 1);
+            line->GetPointIds()->SetId(1, n2.getID() - 1);
+            ugrid->InsertNextCell(VTK_LINE, line->GetPointIds());
+        }
+    }
 
-    vtkNew<vtkDataSetMapper> mapper;
+    // --- Mapper ---
+    mapper = vtkSmartPointer<vtkDataSetMapper>::New();
     mapper->SetInputData(ugrid);
-
     mapper->ScalarVisibilityOn();
     mapper->SetScalarModeToUseCellFieldData();
-    mapper->SelectColorArray("Stress");   // color by stress
 
-
-    vtkNew<vtkLookupTable> lut;
-    lut->SetHueRange(0.667, 0.0);  // blue→red
+    // --- LUT ---
+    lut = vtkSmartPointer<vtkLookupTable>::New();
+    lut->SetHueRange(0.667, 0.0);
     lut->SetNumberOfColors(256);
     lut->Build();
-
     mapper->SetLookupTable(lut);
-    // Scale the stresses for coloring
-    double minS = elStresses->GetRange()[0];
-    double maxS = elStresses->GetRange()[1];
-    mapper->SetScalarRange(minS, maxS);
 
-    std::cout << "Stress range: " << minS << " - " << maxS << std::endl;
+    // --- Actor ---
+    trussActor = vtkSmartPointer<vtkActor>::New();
+    trussActor->SetMapper(mapper);
 
-    vtkNew<vtkActor> actor;
-    actor->SetMapper(mapper);
-
-    vtkNew<vtkScalarBarActor> scalarBar;
+    // --- Scalar bar ---
+    scalarBar = vtkSmartPointer<vtkScalarBarActor>::New();
     scalarBar->SetLookupTable(mapper->GetLookupTable());
-    scalarBar->SetTitle("Stress (psi)");
+    scalarBar->SetWidth(0.06);
+    scalarBar->SetHeight(0.35);
+    scalarBar->SetPosition(0.92, 0.15);
+    scalarBar->GetTitleTextProperty()->SetFontSize(8);
 
-
-    vtkNew<vtkRenderer> renderer;
-    renderer->AddActor(actor);
+    // --- Renderer ---
+    renderer = vtkSmartPointer<vtkRenderer>::New();
+    renderer->AddActor(trussActor);
     renderer->AddActor2D(scalarBar);
     renderer->SetBackground(0.1, 0.1, 0.1);
 
-    vtkNew<vtkRenderWindow> window;
+    // --- Render window ---
+    window = vtkSmartPointer<vtkRenderWindow>::New();
     window->AddRenderer(renderer);
 
-    vtkNew<vtkRenderWindowInteractor> interactor;
+    // --- Interactor ---
+    interactor = vtkSmartPointer<vtkRenderWindowInteractor>::New();
     interactor->SetRenderWindow(window);
-    window->Render();
-    interactor->Start();
+}
+// --- Add fixed joints ---
+void TrussVisualization::addFixedJoints(TrussStructure& trussSystem)
+{
 
-  //return 1;
+    std::map<int, bool> mp = trussSystem.getConditions();
+    for (auto& node : trussSystem.getNodes())
+    {
+        int id = node->getID();
+        int dofx = 3*id-2;
+        int dofy = 3*id-1;
+        int dofz = 3*id;
+        std::vector<double> pos = node->getPosition();
+
+        // X displacement fixed
+        if (mp.find(dofx) != mp.end())
+        {
+            vtkNew<vtkVectorText> textX;
+            textX->SetText("X");
+
+            vtkNew<vtkTransform> tX;
+            tX->Translate(pos[0]-3, pos[1], pos[2]);
+            tX->Scale(1, 1, 1);
+
+            vtkNew<vtkTransformPolyDataFilter> tfX;
+            tfX->SetTransform(tX);
+            tfX->SetInputConnection(textX->GetOutputPort());
+
+            vtkNew<vtkPolyDataMapper> mapperX;
+            mapperX->SetInputConnection(tfX->GetOutputPort());
+
+            vtkNew<vtkActor> actorX;
+            actorX->SetMapper(mapperX);
+            actorX->GetProperty()->SetColor(1.0, 0.0, 0.0); // Red for X
+
+            renderer->AddActor(actorX);
+        }
+
+        // Y displacement fixed
+        if (mp.find(dofy) != mp.end())
+        {
+            vtkNew<vtkVectorText> textY;
+            textY->SetText("Y");
+
+            vtkNew<vtkTransform> tY;
+            tY->Translate(pos[0], pos[1] + 3, pos[2]);
+            tY->Scale(1, 1, 1);
+
+            vtkNew<vtkTransformPolyDataFilter> tfY;
+            tfY->SetTransform(tY);
+            tfY->SetInputConnection(textY->GetOutputPort());
+
+            vtkNew<vtkPolyDataMapper> mapperY;
+            mapperY->SetInputConnection(tfY->GetOutputPort());
+
+            vtkNew<vtkActor> actorY;
+            actorY->SetMapper(mapperY);
+            actorY->GetProperty()->SetColor(0.0, 1.0, 0.0); // Green for Y
+
+            renderer->AddActor(actorY);
+        }
+
+        // Z displacement fixed
+        if (mp.find(dofz) != mp.end())
+        {
+
+            vtkNew<vtkVectorText> textZ;
+            textZ->SetText("Z");
+
+            vtkNew<vtkTransform> tZ;
+            tZ->Translate(pos[0] + 3, pos[1], pos[2]);
+            tZ->Scale(1, 1, 1);
+
+            vtkNew<vtkTransformPolyDataFilter> tfZ;
+            tfZ->SetTransform(tZ);
+            tfZ->SetInputConnection(textZ->GetOutputPort());
+
+            vtkNew<vtkPolyDataMapper> mapperZ;
+            mapperZ->SetInputConnection(tfZ->GetOutputPort());
+
+            vtkNew<vtkActor> actorZ;
+            actorZ->SetMapper(mapperZ);
+            actorZ->GetProperty()->SetColor(0.0, 0.0, 1.0); // Blue for Z
+
+            renderer->AddActor(actorZ);
+        }
+    }
+}
+
+// --- Update scalar field ---
+void TrussVisualization::updateScalarField(TrussStructure& trussSystem,
+                                           std::vector<double>& displacementVec,
+                                           const std::string& field)
+{
+    int numElements = trussSystem.getElements().size();
+    if (numElements == 0) return; // safe exit
+
+    if (!scalarArray)
+        scalarArray = vtkSmartPointer<vtkDoubleArray>::New();
+
+    scalarArray->SetNumberOfComponents(1);
+    scalarArray->SetNumberOfTuples(numElements);
+    scalarArray->SetName(field.c_str());
+
+    for (int e = 0; e < numElements; ++e)
+    {
+        double val = 0.0;
+        if (field == "stress")
+            val = std::abs(trussSystem.getElements()[e]->computeElStress(displacementVec));
+        else if (field == "strain")
+            val = std::abs(trussSystem.getElements()[e]->computeElStrain(displacementVec));
+        scalarArray->SetValue(e, val);
+    }
+
+    scalarArray->Modified();
+    ugrid->GetCellData()->SetScalars(scalarArray);
+
+    mapper->SelectColorArray(field.c_str());
+
+    double minV = scalarArray->GetRange()[0];
+    double maxV = scalarArray->GetRange()[1];
+    mapper->SetScalarRange(minV, maxV);
+
+    scalarBar->SetTitle(field.c_str());
+
+    window->Render();
+}
+
+// --- Start interaction ---
+void TrussVisualization::start()
+{
+    // Add global coordinate axes and define its colors and position
+    vtkNew<vtkOrientationMarkerWidget> widget;
+    vtkNew<vtkAxesActor> axes;
+    vtkNew<vtkNamedColors> colors;
+    double rgba[4]{0.0, 0.0, 0.0, 0.0};
+    colors->GetColor("Carrot", rgba);
+    widget->SetOutlineColor(rgba[0], rgba[1], rgba[2]);
+    widget->SetOrientationMarker(axes);
+    widget->SetInteractor(interactor);
+    widget->SetViewport(0.0, 0.0, 0.4, 0.4);
+    widget->SetEnabled(1);
+    widget->InteractiveOn();
+
+    // Reset the camera as it automatically resets to the coord. axes
+    renderer->ResetCamera();
+    window->Render();           // important
+    //interactor->Initialize();   // ensures widget can compute viewport sizes
+    interactor->Start();
 }

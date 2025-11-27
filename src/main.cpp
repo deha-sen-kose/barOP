@@ -89,7 +89,10 @@ int main(){
 
     std::cout << std::endl;
 
-    visualizeTrussSystem(struct1, u);
+    TrussVisualization vis(struct1);
+    vis.addFixedJoints(struct1);
+    vis.updateScalarField(struct1, u, "stress");
+    vis.start();
 
 
     return EXIT_SUCCESS;
