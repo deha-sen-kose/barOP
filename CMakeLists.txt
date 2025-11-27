@@ -33,6 +33,7 @@ find_package(VTK COMPONENTS
   RenderingFreeType
   RenderingGL2PSOpenGL2
   RenderingOpenGL2
+  RenderingAnnotation
 )
 
 if (NOT VTK_FOUND)

@@ -21,9 +21,19 @@ public:
 
   Node& getNode2() const;
 
+  double computeLength() const;
+
+  Matrix<double> computeTransformation() const;
+
   std::vector<int> getDOF() const override;
 
   Matrix<double> computeGlobalStiffnessMtx() const override;
 
+  double computeElStrain(std::vector<double>& u) const;
+
+  double computeElStress(std::vector<double>& u) const;
 };
+
+
+
 #endif

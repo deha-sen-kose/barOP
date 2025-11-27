@@ -1,4 +1,5 @@
 #include "../include/barOP/trussElement.h"
+#include "math/Matrix.h"
 #include <vector>
 
 TrussElement::TrussElement(int id, Node& node1, Node& node2, Material& Mat, double A) :
@@ -31,38 +32,98 @@ Node& TrussElement::getNode2() const {
     return _node2;
 };
 
+double TrussElement::computeLength() const{
+
+    std::vector<double> pos1 = _node1.getPosition();
+    std::vector<double> pos2 = _node2.getPosition();
+
+    double x1 = pos1[0];
+    double y1 = pos1[1];
+    double z1 = pos1[2];
+
+    double x2 = pos2[0];
+    double y2 = pos2[1];
+    double z2 = pos2[2];
+
+    double L = std::sqrt(std::pow(x2-x1,2) + std::pow(y2-y1,2) + std::pow(z2-z1,2));
+
+    return L;
+
+};
+
+Matrix<double> TrussElement::computeTransformation() const{
+
+    double L = this->computeLength();
+
+    std::vector<double> pos1 = _node1.getPosition();
+    std::vector<double> pos2 = _node2.getPosition();
+
+    double x1 = pos1[0];
+    double y1 = pos1[1];
+    double z1 = pos1[2];
+
+    double x2 = pos2[0];
+    double y2 = pos2[1];
+    double z2 = pos2[2];
+
+    double cx = (x2-x1)/L;
+    double cy = (y2-y1)/L;
+    double cz = (z2-z1)/L;
+
+    Matrix<double> transformationMtx = {{cx, cy, cz, 0, 0, 0},
+                                        {0, 0, 0, cx, cy, cz}};
+
+    return transformationMtx;
+
+};
 
 Matrix<double> TrussElement::computeGlobalStiffnessMtx() const{
 
-      std::vector<double> pos1 = _node1.getPosition();
-      std::vector<double> pos2 = _node2.getPosition();
 
-      double x1 = pos1[0];
-      double y1 = pos1[1];
-      double z1 = pos1[2];
-
-      double x2 = pos2[0];
-      double y2 = pos2[1];
-      double z2 = pos2[2];
-
-      double L = std::sqrt(std::pow(x2-x1,2) + std::pow(y2-y1,2) + std::pow(z2-z1,2));
-
-      double cx = (x2-x1)/L;
-      double cy = (y2-y1)/L;
-      double cz = (z2-z1)/L;
-
-      Matrix<double> elLocalStffMtx = {{1, -1},
+    double L = this->computeLength();
+    Matrix<double> transformationMtx = this->computeTransformation();
+    Matrix<double> elLocalStffMtx = {{1, -1},
                                        {-1, 1}};
 
-      double scalar = _Material.getE() * _A / L;
+    double scalar = _Material.getE()*_A/L;
 
-      elLocalStffMtx = elLocalStffMtx*scalar;
-
-      Matrix<double> transformationMtx = {{cx, cy, cz, 0, 0, 0},
-                                          {0, 0, 0, cx, cy, cz}};
+    elLocalStffMtx = elLocalStffMtx*scalar;
 
     Matrix<double> elGlobalStffMtx = transformationMtx.transpose()*elLocalStffMtx*transformationMtx;
 
-
     return elGlobalStffMtx;
+};
+
+
+double TrussElement::computeElStrain(std::vector<double>& u) const{
+
+    Matrix<double> transformationMtx = this->computeTransformation();
+
+    std::vector<int> DOFs = this->getDOF();
+    std::vector<double> elementDispV(6);
+
+    for (int i = 0; i < 6;  ++i){
+
+        elementDispV[i] = u[DOFs[i]-1];
+
+    };
+
+    std::vector<double> elementDisp = transformationMtx.mVm(elementDispV);
+
+    double L = this->computeLength();
+
+    double elStrain = (elementDisp[1] - elementDisp[0])/L;
+
+    return elStrain;
+
+};
+
+double TrussElement::computeElStress(std::vector<double>& u) const{
+
+    double strain = this->computeElStrain(u);
+
+    double stress = _Material.getE()*strain;
+
+    return stress;
+
 };

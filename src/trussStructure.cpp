@@ -152,3 +152,49 @@ std::vector<double> TrussStructure::solveTrussSystem(Matrix<double>& K_red, std:
     std::vector<double> u = L_inverse.transpose().mVm(L_inverse.mVm(F_red));
     return u;
 };
+
+std::vector<double> TrussStructure::returnDispVector(std::vector<double>& u_red) const{
+
+  int numNode = _nodes.size();
+  int numDOF = numNode*3;
+
+  std::vector<double> u(numDOF,0.0);
+
+  int counter = 0;
+  for (int i = 0; i < numDOF; ++i){
+      if (_boundaryConditions.find(i+1) == _boundaryConditions.end()){
+
+        // if key does not exist
+        u[i] = u_red[counter];
+        counter++;
+      };
+  };
+  return u;
+};
+
+std::vector<double> TrussStructure::computeStrains(std::vector<double>& u) const{
+
+    int numEl = _elements.size();
+    std::vector<double> strains(numEl, 0.0);
+
+    for (int i = 0; i < numEl; ++i){
+
+        strains[i] = _elements[i]->computeElStrain(u);
+
+    };
+
+    return strains;
+};
+
+std::vector<double> TrussStructure::computeStresses(std::vector<double>& u) const{
+
+    int numEl = _elements.size();
+    std::vector<double> stresses(numEl, 0.0);
+
+    for (int i = 0; i < numEl; ++i){
+
+        stresses[i] = _elements[i]->computeElStress(u);
+
+    };
+    return stresses;
+};

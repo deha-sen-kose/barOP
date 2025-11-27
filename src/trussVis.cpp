@@ -1,23 +1,7 @@
 #include "../include/visualization/trussVis.h"
-#include "../include/barOP/trussStructure.h"
-#include <vtkActor.h>
-#include <vtkCellArray.h>
-#include <vtkCellData.h>
-#include <vtkLine.h>
-#include <vtkNamedColors.h>
-#include <vtkNew.h>
-#include <vtkPoints.h>
-#include <vtkPolyData.h>
-#include <vtkPolyDataMapper.h>
-#include <vtkProperty.h>
-#include <vtkRenderWindow.h>
-#include <vtkRenderWindowInteractor.h>
-#include <vtkRenderer.h>
-#include <vtkUnsignedCharArray.h>
-#include <vtkUnstructuredGrid.h>
-#include <vtkDataSetMapper.h>
+#include <vector>
 
-void visualizeTrussSystem(TrussStructure& trussSystem)
+void visualizeTrussSystem(TrussStructure& trussSystem, std::vector<double>& displacementVec)
 {
     vtkNew<vtkPoints> points;
 
@@ -44,18 +28,48 @@ void visualizeTrussSystem(TrussStructure& trussSystem)
         ugrid->InsertNextCell(VTK_LINE, line->GetPointIds());
     }
 
+    vtkNew<vtkDoubleArray> elStresses;
+    elStresses->SetName("Stress");
+    elStresses->SetNumberOfComponents(1);
+
+    int numElements = trussSystem.getElements().size();
+    for (int e = 0; e < numElements; e++) {
+        elStresses->InsertNextValue(std::abs(trussSystem.getElements()[e]->computeElStress(displacementVec)));
+    };
+    ugrid->GetCellData()->AddArray(elStresses);
 
     vtkNew<vtkDataSetMapper> mapper;
     mapper->SetInputData(ugrid);
-    //mapper->ScalarVisibilityOn();
-    //mapper->SetScalarModeToUseCellFieldData();
-    //mapper->SelectColorArray("AxialForce");   // color by force
+
+    mapper->ScalarVisibilityOn();
+    mapper->SetScalarModeToUseCellFieldData();
+    mapper->SelectColorArray("Stress");   // color by stress
+
+
+    vtkNew<vtkLookupTable> lut;
+    lut->SetHueRange(0.667, 0.0);  // blue→red
+    lut->SetNumberOfColors(256);
+    lut->Build();
+
+    mapper->SetLookupTable(lut);
+    // Scale the stresses for coloring
+    double minS = elStresses->GetRange()[0];
+    double maxS = elStresses->GetRange()[1];
+    mapper->SetScalarRange(minS, maxS);
+
+    std::cout << "Stress range: " << minS << " - " << maxS << std::endl;
 
     vtkNew<vtkActor> actor;
     actor->SetMapper(mapper);
 
+    vtkNew<vtkScalarBarActor> scalarBar;
+    scalarBar->SetLookupTable(mapper->GetLookupTable());
+    scalarBar->SetTitle("Stress (psi)");
+
+
     vtkNew<vtkRenderer> renderer;
     renderer->AddActor(actor);
+    renderer->AddActor2D(scalarBar);
     renderer->SetBackground(0.1, 0.1, 0.1);
 
     vtkNew<vtkRenderWindow> window;

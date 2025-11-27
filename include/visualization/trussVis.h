@@ -15,12 +15,17 @@
 #include <vtkRenderWindowInteractor.h>
 #include <vtkRenderer.h>
 #include <vtkUnsignedCharArray.h>
+#include <vtkUnstructuredGrid.h>
+#include <vtkDataSetMapper.h>
+#include <vtkDoubleArray.h>
+#include <vtkLookupTable.h>
+#include <vtkScalarBarActor.h>
 
 // For compatibility with new VTK generic data arrays.
 #ifdef vtkGenericDataArray_h
 #define InsertNextTupleValue InsertNextTypedTuple
 #endif
 
-void visualizeTrussSystem(TrussStructure& trussSystem);
+void visualizeTrussSystem(TrussStructure& trussSystem, std::vector<double>& displacementVec);
 
 #endif

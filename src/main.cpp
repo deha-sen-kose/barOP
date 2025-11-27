@@ -5,6 +5,7 @@
 #include <cstdio>
 #include <iostream>
 #include <cstdlib>
+#include <ostream>
 #include <vector>
 
 int main(){
@@ -55,7 +56,7 @@ int main(){
         std::cout << F[i] << " ";
 
     };
-
+    std::cout << std::endl;
 
     std::vector<double> u_red = struct1.solveTrussSystem(K, F);
 
@@ -68,7 +69,27 @@ int main(){
 
     std::cout << std::endl;
 
-    visualizeTrussSystem(struct1);
+    std::vector<double> u = struct1.returnDispVector(u_red);
+
+    for (size_t i = 0; i < u.size(); ++i){
+
+     std::cout << u[i] << " ";
+
+   };
+
+    std::cout << std::endl;
+
+    std::vector<double> sigma = struct1.computeStresses(u);
+
+    for (size_t i = 0; i < sigma.size(); ++i){
+
+     std::cout << sigma[i] << " ";
+
+   };
+
+    std::cout << std::endl;
+
+    visualizeTrussSystem(struct1, u);
 
 
     return EXIT_SUCCESS;
