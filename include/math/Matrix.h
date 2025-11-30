@@ -9,90 +9,207 @@
 #include <vector>
 #include <algorithm>
 
-
+/**
+ * Templated class Matrix.
+ * A matrix class that is used to represent matrix like data structures.
+ * Contains important functions such as deleteRows(), deleteColumns() and cho() to handle LSEs.
+ */
 template<typename T>
 class Matrix {
 
     private:
+
+        /**
+         * Private member variable.
+         * Number of rows
+         */
         size_t _size1;
+
+        /**
+         * Private member variable.
+         * Number of columns
+         */
         size_t _size2;
 
+        /**
+         * Private member variable.
+         * A dynamic matrix structure
+         */
         T** _matrix;
 
     public:
-        // Check for memory leaks
+
+        /**
+        * A static public vartible for checking memory leaks (dangling pointers and such).
+        * Used in unit tests to compare the number of allocations and destructions.
+        * Should not be used for analysis!
+        */
         static int allocations;
 
-        // Generate an instance
+        /**
+        * Matrix class constructor.
+        * Generates a Matrix instance.
+        */
         Matrix();
 
-        // Empty constructor
+        /**
+        * Matrix class constructor.
+        * Generates an empty Matrix.
+        * @param r Number of rows
+        * @param c Number of columns
+        */
         Matrix(const size_t& r, const size_t& c);
 
-        // Numeric constructor -- all is set to the same value
+        /**
+        * Matrix class constructor.
+        * Generates a Matrix with all elements equal to given value.
+        * @param r Number of rows
+        * @param c Number of columns
+        * @param value The wanted value of initialization
+        */
         Matrix(const size_t& r, const size_t& c, T value);
 
-        // List initializer
+        /**
+        * Matrix class constructor.
+        * Constructs matrices with list syntax.
+        * Example: Matrix<int> M = {{0,0},{0,0}};
+        */
         Matrix(std::initializer_list<std::initializer_list<T>> init);
 
-        // Copy constructor
+        /**
+        * Matrix class copy-constructor.
+        * @param M Matrix that is wanted to be deep-copied
+        */
         Matrix(const Matrix& M);
 
-        // Deconstructor
+        /**
+        * Matrix class destructor
+        */
         ~Matrix();
 
-        // Get size
+        /**
+        * Member function for finding the size.
+        * @return A vector containing the sizes in order: {rows, columns}.
+        */
         std::vector<size_t> getSize() const;
 
-        // Print out matrix.
+        /**
+        * Member function for printing a matrix to the console
+        */
         void printOut() const;
 
-        // Read-write operator
+        /**
+        * Member function for operator() overloading.
+        * Allows for both read and write.
+        * @param r Row index
+        * @param c Column index
+        */
         T& operator()(const size_t& r, const size_t& c);
 
-        // Read-only operator - at()
+        /**
+        * Member function for operator() overloading.
+        * Allows only for reading.
+        * @param r Row index
+        * @param c Column index
+        */
         const T& operator()(const size_t& r, const size_t& c) const;
 
-        // Assign operator
+        /**
+        * Member function for operator = .
+        * Deep copies matrices.
+        * @param M Matrix that is desired to be copied
+        * @return Deep copy matrix
+        */
         Matrix<T>& operator=(const Matrix& M);
 
-        // Add matrices
+        /**
+        * Member function for operator + .
+        * Allows for adding matrices.
+        * @param M2 Matrix that is to be added
+        * @return Resulting matrix
+        */
         Matrix<T> operator+(const Matrix<T>& M2) const;
 
-        // Subtract matrices
+        /**
+        * Member function for operator -.
+        * Allows for subtracting matrices.
+        * @param M2 Matrix that is to be subtracted
+        * @return Resulting matrix
+        */
         Matrix<T> operator-(const Matrix<T>& M2) const;
 
-        // Multiply matrices
+        /**
+        * Member function for operator * overloading.
+        * Allows for multiplying matrices.
+        * @param M2 Matrix that is to be multiplied from right
+        * @return Resulting matrix
+        */
         Matrix<T> operator*(const Matrix<T>& M2) const;
 
-        // Multiply with a scalar
+        /**
+        * Member function for operator * overloading.
+        * Allows for multiplying matrices with scalars.
+        * @param scalar Scalar that is to be multiplied
+        * @return Resulting matrix
+        */
         Matrix<T> operator*(T scalar) const;
 
-        // Transpose
+        /**
+        * Member function for transposing a matrix.
+        * Returns a new matrix with transposed values.
+        * @return Transposed matrix
+        */
         Matrix<T> transpose() const;
 
-        // Delete single row ( to be used in multiple row deletions)
+        /**
+        * Member function for deleting a row.
+        * @param r Row index to be deleted
+        */
         void deleteRow(size_t r);
 
-        // Delete rows
+        /**
+        * Member function for deleting multiple rows.
+        * @param r Vector of row indices to be deleted
+        */
         void deleteRows(std::vector<size_t>& r);
 
-        // Add rows
+        /**
+        * Member function for concetanating rows.
+        * @param rows New row matrix to be added to the end
+        */
         void addRows(Matrix<T>& rows);
 
-        // Delete column
+        /**
+        * Member function for deleting a column.
+        * @param c Column index to be deleted
+        */
         void deleteColumn(size_t c);
 
-        // Delete multiple columns
+        /**
+        * Member function for deleting multiple columns.
+        * @param c Vector of column indices to be deleted
+        */
         void deleteColumns(std::vector<size_t>& c);
 
-        // Matrix vector multiplication
+        /**
+        * Member function for computing matrix vector multiplication.
+        * @param vec Vector that is wanted to be multiplied from right
+        * @return Resulting vector
+        */
         std::vector<T> mVm(const std::vector<T>& vec) const;
 
-        // Cholesky Decomposition
+        /**
+        * Member function for computing complete Cholesky decompositon.
+        * Handy for SPD systems. Uses Cholesky–Banachiewicz algorithm
+        * @return Lower triangle matrix
+        */
         Matrix<T> cho() const;
 
-        // Compute inverse of a lower triangular matrix
+        /**
+        * Member function for computing inverse of a lower triangular matrix.
+        * Used to solve the finite element linear system of equations. Banachiewicz inversion
+        * @return Inverse of the lower triangular matrix.
+        */
         Matrix<T> L_inverse() const;
 };
 
@@ -158,7 +275,6 @@ Matrix<T>::Matrix(std::initializer_list<std::initializer_list<T>> init){
             }
             i++;
         }
-
 };
 
 template<typename T>

@@ -1,6 +1,4 @@
 #include "../include/barOP/trussElement.h"
-#include "math/Matrix.h"
-#include <vector>
 
 TrussElement::TrussElement(int id, Node& node1, Node& node2, Material& Mat, double A) :
     Element(id, Mat), _node1(node1),

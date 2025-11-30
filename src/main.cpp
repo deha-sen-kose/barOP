@@ -23,8 +23,6 @@ int main(){
     Node& n3 = struct1.addNode(40, 30, 0);
     Node& n4 = struct1.addNode(0, 30, 0);
 
-
-
     double E = 29.5E6;
     Material& mat = struct1.addMaterial("E", E);
     double A = 1.0;

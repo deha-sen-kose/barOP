@@ -34,6 +34,9 @@
 #define InsertNextTupleValue InsertNextTypedTuple
 #endif
 
+/**
+ * Visualization structure
+ */
 struct TrussVisualization
 {
     vtkSmartPointer<vtkPoints> points;
@@ -47,18 +50,36 @@ struct TrussVisualization
     vtkSmartPointer<vtkRenderWindowInteractor> interactor;
     vtkSmartPointer<vtkDoubleArray> scalarArray;
 
-    // Constructor
+    /**
+     * Structure initializer.
+     * @param trussSystem A TrusStructure instance
+     * @see TrussStructure
+     */
     TrussVisualization(TrussStructure& trussSystem);
 
-    // Add fixed joint glyphs
+    /**
+     * Adds fixed joint indicators on window.
+     * Adds X, Y and/or Z letters to indicate which direction is fixed.
+     * @param trussSystem A TrusStructure instance
+     * @see TrussStructure
+     */
     void addFixedJoints(TrussStructure& trussSystem);
 
-    // Update stress/strain scalar field
+    /**
+     * Updates the field put into the truss structure.
+     * Color grades the engineering strain and stress fields.
+     * @param trussSystem A TrusStructure instance
+     * @param displacementVec Complete displacement solution
+     * @param field Field name. Available options are: "stress" and "strain"
+     * @see TrussStructure
+     */
     void updateScalarField(TrussStructure& trussSystem,
                            std::vector<double>& displacementVec,
                            const std::string& field);
 
-    // Start interaction
+    /**
+     * Starts the visualitzation process
+     */
     void start();
 };
 
