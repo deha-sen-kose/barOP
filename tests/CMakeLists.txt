@@ -4,7 +4,10 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 # Add testing
 enable_testing()
 
-add_executable(unitTests tests/unitTests.cpp tests/matrixTests.cpp)
+add_executable(unitTests tests/unitTests.cpp
+                        tests/matrixTests.cpp
+                        tests/trussElementTests.cpp
+                        tests/trussStructureTests.cpp)
 
 target_link_libraries(unitTests PRIVATE
 

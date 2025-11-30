@@ -43,7 +43,7 @@ double TrussElement::computeLength() const{
     double y2 = pos2[1];
     double z2 = pos2[2];
 
-    double L = std::sqrt(std::pow(x2-x1,2) + std::pow(y2-y1,2) + std::pow(z2-z1,2));
+    double L = std::sqrt((x2-x1)*(x2-x1) + (y2-y1)*(y2-y1) + (z2-z1)*(z2-z1));
 
     return L;
 

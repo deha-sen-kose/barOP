@@ -89,7 +89,7 @@ void TrussVisualization::addFixedJoints(TrussStructure& trussSystem)
             textX->SetText("X");
 
             vtkNew<vtkTransform> tX;
-            tX->Translate(pos[0]-3, pos[1], pos[2]);
+            tX->Translate(pos[0]-1, pos[1], pos[2]);
             tX->Scale(1, 1, 1);
 
             vtkNew<vtkTransformPolyDataFilter> tfX;
@@ -113,7 +113,7 @@ void TrussVisualization::addFixedJoints(TrussStructure& trussSystem)
             textY->SetText("Y");
 
             vtkNew<vtkTransform> tY;
-            tY->Translate(pos[0], pos[1] + 3, pos[2]);
+            tY->Translate(pos[0], pos[1] + 1, pos[2]);
             tY->Scale(1, 1, 1);
 
             vtkNew<vtkTransformPolyDataFilter> tfY;
@@ -138,7 +138,7 @@ void TrussVisualization::addFixedJoints(TrussStructure& trussSystem)
             textZ->SetText("Z");
 
             vtkNew<vtkTransform> tZ;
-            tZ->Translate(pos[0] + 3, pos[1], pos[2]);
+            tZ->Translate(pos[0] + 1, pos[1], pos[2]);
             tZ->Scale(1, 1, 1);
 
             vtkNew<vtkTransformPolyDataFilter> tfZ;

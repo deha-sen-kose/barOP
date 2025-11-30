@@ -143,14 +143,21 @@ void TrussStructure::applyHomBCs(Matrix<double>& globStffMtx, std::vector<double
 };
 
 // Solve truss system
-std::vector<double> TrussStructure::solveTrussSystem(Matrix<double>& K_red, std::vector<double> F_red) const{
+std::vector<double> TrussStructure::solveTrussSystem() const{
 
-    Matrix<double> L = K_red.cho();
+    Matrix<double> K_master = this->assembleStffMtx();
+    std::vector<double> F_master = this->createForceVector();
+
+    this->applyHomBCs(K_master, F_master);
+
+    Matrix<double> L = K_master.cho();
 
     Matrix<double> L_inverse = L.L_inverse();
 
-    std::vector<double> u = L_inverse.transpose().mVm(L_inverse.mVm(F_red));
-    return u;
+    std::vector<double> u = L_inverse.transpose().mVm(L_inverse.mVm(F_master));
+
+    std::vector<double> u_full = this->returnDispVector(u);
+    return u_full;
 };
 
 std::vector<double> TrussStructure::returnDispVector(std::vector<double>& u_red) const{

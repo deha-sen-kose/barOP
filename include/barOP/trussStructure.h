@@ -1,5 +1,5 @@
-#ifndef TRUSSSYSTEM_H
-#define TRUSSSYSTEM_H
+#ifndef TRUSSSTRUCTURE_H
+#define TRUSSSTRUCTURE_H
 
 #include "material.h"
 #include "trussElement.h"
@@ -169,12 +169,10 @@ public:
     /**
      * Member function that solves the LSE
      * Uses complete Cholesky algoritm to solve the system
-     * @param K_red Reduced master stiffness matrix
-     * @param F_red Reduced master force vector
-     * @return Reduced displacement vector
+     * @return Reduced complete displacement vector
      * @see Matrix
      */
-    std::vector<double> solveTrussSystem(Matrix<double>& K_red, std::vector<double> F_red) const;
+    std::vector<double> solveTrussSystem() const;
 
     /**
      * Member function that computes complete displacement vector
