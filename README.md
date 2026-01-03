@@ -23,9 +23,9 @@ Above example radio tower is taken from: Fox, R. L. and Schmit, L. A., Advances 
 Material Conference, 1964.
 
 ## Prerequisite
-* If you wishto build with unit tests, then you need [googletest](https://github.com/google/googletest).
-* In order to visualize the truss systems as shown in above picture, [The Visualization Toolkit](https://vtk.org/).
-* [CMake](https://cmake.org/) to build.
+* [CMake](https://cmake.org/) to build
+* In order to visualize the truss systems as shown in above picture, [The Visualization Toolkit](https://vtk.org/)
+* If you wish to build with unit tests, then you need [googletest](https://github.com/google/googletest)
 
 ## Building the project
 ```
