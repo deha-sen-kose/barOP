@@ -1,3 +1,5 @@
+<img width="1003" height="217" alt="Screenshot from 2026-01-04 21-54-40" src="https://github.com/user-attachments/assets/6378b47c-3be6-427e-9bd3-074336ebba69" />
+
 # barOP — Truss Analysis & Shape Optimization Toolkit
 
 barOP is an open-source C++ project focused on structural analysis and shape optimization for truss systems. 
