@@ -8,7 +8,7 @@
 #include <stdexcept>
 #include <vector>
 #include <algorithm>
-#include <iomanip>
+
 /**
  * Templated class Matrix.
  * A matrix class that is used to represent matrix like data structures.
