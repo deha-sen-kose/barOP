@@ -7,11 +7,13 @@ enable_testing()
 add_executable(unitTests tests/unitTests.cpp
                         tests/matrixTests.cpp
                         tests/trussElementTests.cpp
-                        tests/trussStructureTests.cpp)
+                        tests/trussStructureTests.cpp
+                        tests/mathflbTests.cpp)
 
 target_link_libraries(unitTests PRIVATE
 
     trussStructure
+    mathflb
     GTest::gtest
     # Provides a main function for googletests
     GTest::gtest_main

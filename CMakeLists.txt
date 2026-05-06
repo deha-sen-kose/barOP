@@ -35,8 +35,10 @@ add_library(trussStructure SHARED ${CMAKE_CURRENT_SOURCE_DIR}/src/trussStructure
 # Generate executable
 add_executable(barOP ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp ${CMAKE_CURRENT_SOURCE_DIR}/src/trussVis.cpp)
 
+add_library(mathflb ${CMAKE_CURRENT_SOURCE_DIR}/src/mathflb.cpp)
+
 # Link libraries
-target_link_libraries(barOP PRIVATE trussStructure ${VTK_LIBRARIES})
+target_link_libraries(barOP PRIVATE trussStructure mathflb ${VTK_LIBRARIES})
 
 # vtk_module_autoinit is needed
 vtk_module_autoinit(
