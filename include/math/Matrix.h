@@ -8,7 +8,7 @@
 #include <stdexcept>
 #include <vector>
 #include <algorithm>
-
+#include <iomanip>
 /**
  * Templated class Matrix.
  * A matrix class that is used to represent matrix like data structures.
@@ -197,7 +197,7 @@ class Matrix {
         * @return Resulting vector
         */
         std::vector<T> mVm(const std::vector<T>& vec) const;
-
+        
         /**
         * Member function for computing complete Cholesky decompositon.
         * Handy for SPD systems. Uses Cholesky–Banachiewicz algorithm
@@ -211,6 +211,9 @@ class Matrix {
         * @return Inverse of the lower triangular matrix.
         */
         Matrix<T> L_inverse() const;
+
+        std::vector<double> gaussSeidel(std::vector<T> b) const;
+
 };
 
 template<typename T>
@@ -666,6 +669,70 @@ Matrix<T> Matrix<T>::L_inverse() const {
     };
 
     return M;
+};
+
+
+template<typename T>
+std::vector<double> Matrix<T>::gaussSeidel(std::vector<T> b) const {
+
+
+    Matrix<T> A = *this;
+        
+    size_t sysSize = b.size();
+    std::vector<double> x(sysSize); 
+
+    bool convergence = false;
+    double sigma = 0.0;
+    double tolerance = 1E-8;
+    int maxIter = 10000;
+    int iter = 0;
+
+    do {
+
+        double maxDiff = 0.0;
+        
+        for(size_t i = 0; i < sysSize; i++){
+
+            sigma = 0.0;
+            
+            for(size_t j = 0; j < sysSize; j++){
+                
+                if(i != j){
+
+                    sigma = sigma + (double)A(i,j)*x[j];
+                    
+                }            
+            }
+
+
+            double x_old = x[i];
+
+            if (std::abs(A(i,i)) < 1E-12) {
+                std::cerr <<
+                "Warning: Zero or non-zero diagonal element \n";
+            }
+            
+            x[i] = (b[i]-sigma)/(double)A(i,i);
+
+
+            maxDiff = std::max(maxDiff,
+                                      std::abs(x[i]-x_old));
+            
+            // std::cout << x[0] << std::endl;
+             
+            // std::cout << x[1] << std::endl;
+
+            // std::cout << x[2] << std::endl;
+        }
+
+
+        convergence = (maxDiff < tolerance);
+
+        iter++;
+                 
+    } while (!convergence && iter < maxIter);    
+
+    return x;
 };
 
 #endif

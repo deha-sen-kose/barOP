@@ -1,5 +1,6 @@
 #include "../include/math/Matrix.h"
 #include <gtest/gtest.h>
+#include <vector>
 
 TEST(MatrixLibTest, copyConstCopiesDimensionsCorrectly)
 {
@@ -819,4 +820,40 @@ TEST(MatrixLibTest, LowerTriangularInverse) {
 
         }
     }
+}
+
+TEST(MatrixLibTest, gaussSeidel2b2) {
+
+    Matrix<int> A = {{16, 3},
+                     {7 ,-11}};
+
+    std::vector<int> b = {11,13};
+
+    std::vector<double> expected = {0.812183, -0.664975};
+
+    std::vector<double> result = A.gaussSeidel(b);                     
+
+    
+
+    for (size_t i = 0; i < 2; ++i) {
+        EXPECT_NEAR(expected[i], result[i], 1E-6);            
+    }
+}
+
+TEST(MatrixLibTest, gaussSeidel3b3) {
+
+    Matrix<int> A = {{4, 1, 2},
+                     {3, 5, 1},
+                     {1, 1, 3}};
+
+    std::vector<int> b = {4,7,3};                 
+
+    std::vector<double> expected = {0.5, 1.0, 0.5};
+
+    std::vector<double> result = A.gaussSeidel(b);
+    
+    for (size_t i = 0; i < 2; ++i) {
+        EXPECT_NEAR(expected[i], result[i], 1E-6);            
+    }
+    
 }
