@@ -55,7 +55,7 @@ int main(){
     std::vector<double> forces = {-10, -10, -16, -10, -10};
     t1.addForces(forceDof, forces);
 
-    std::vector<double> u = t1.solveTrussSystem();
+    std::vector<double> u = t1.solveTrussSystem("cho");
 
     std::vector<double> sigma = t1.computeStresses(u);
 */
@@ -106,7 +106,7 @@ int main(){
     std::vector<double> forces = {1000, 10000, -5000, 10000, -5000, 500, 500};
     t1.addForces(forceDof, forces);
 
-    std::vector<double> u = t1.solveTrussSystem();
+    std::vector<double> u = t1.solveTrussSystem("gs");
 
     TrussVisualization vis(t1);
     vis.addFixedJoints(t1);

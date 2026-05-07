@@ -1,5 +1,6 @@
 #include "../include/barOP/trussStructure.h"
-#include "math/Matrix.h"
+#include "../include/math/mathflb.h"
+#include "../include/math/Matrix.h"
 #include <functional>
 #include <stdexcept>
 #include <vector>
@@ -143,19 +144,35 @@ void TrussStructure::applyHomBCs(Matrix<double>& globStffMtx, std::vector<double
 };
 
 // Solve truss system
-std::vector<double> TrussStructure::solveTrussSystem() const{
+std::vector<double> TrussStructure::solveTrussSystem(
+                                std::string solver) const{
 
     Matrix<double> K_master = this->assembleStffMtx();
     std::vector<double> F_master = this->createForceVector();
 
     this->applyHomBCs(K_master, F_master);
+    
+    std::vector<double> u(K_master.getSize()[0]);
+    if(solver == "cho") // cholesky solver
+    {
+        u = choleskySolver(K_master, F_master);
+    }
+    else if(solver == "gs") // gauss seidel solver
+    {
+        u = gaussSeidel(K_master, F_master);
+    }
+    else
+    {
+        std::cout << "Given solver method does not exist!"
+                     " Only \"gs\" for Gauss-Seidel and  "
+                     "\"cho\" for Cholesky decomposition "
+                     "are available. Solving the system with"
+                     " default Cholesky." << std::endl;
 
-    Matrix<double> L = K_master.cho();
-
-    Matrix<double> L_inverse = L.L_inverse();
-
-    std::vector<double> u = L_inverse.transpose().mVm(L_inverse.mVm(F_master));
-
+         
+        u = choleskySolver(K_master, F_master);
+    }
+    
     std::vector<double> u_full = this->returnDispVector(u);
     return u_full;
 };

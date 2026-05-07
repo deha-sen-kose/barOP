@@ -4,6 +4,7 @@
 #include "material.h"
 #include "trussElement.h"
 #include "node.h"
+#include "string"
 #include <map>
 #include <memory>
 #include <vector>
@@ -172,7 +173,7 @@ public:
      * @return Reduced complete displacement vector
      * @see Matrix
      */
-    std::vector<double> solveTrussSystem() const;
+    std::vector<double> solveTrussSystem(std::string solver) const;
 
     /**
      * Member function that computes complete displacement vector

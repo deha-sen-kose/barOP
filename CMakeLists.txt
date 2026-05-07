@@ -46,5 +46,8 @@ vtk_module_autoinit(
   MODULES ${VTK_LIBRARIES}
 )
 
+set_property(TARGET barOP PROPERTY CXX_STANDARD 20)
+set_property(TARGET trussStructure PROPERTY CXX_STANDARD 20)
+set_property(TARGET mathflb PROPERTY CXX_STANDARD 20)
 # Tell CMake there is a separete CMakeLists.txt in ./tests
 include(${CMAKE_CURRENT_SOURCE_DIR}/tests/CMakeLists.txt)

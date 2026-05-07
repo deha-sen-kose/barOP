@@ -4,10 +4,12 @@
 #include <cmath>
 #include <cstddef>
 #include <initializer_list>
+#include <iomanip>
 #include <iostream>
 #include <stdexcept>
 #include <vector>
 #include <algorithm>
+#include <format>
 
 /**
  * Templated class Matrix.
@@ -358,16 +360,43 @@ Matrix<T>& Matrix<T>::operator=(const Matrix& M)
 template<typename T>
 void Matrix<T>::printOut() const{
 
-    std::cout << "[";
-    for (size_t i = 0; i < _size1; ++i){
-        if(i != 0) std::cout << " ";
-        for (size_t j = 0; j < _size2; ++j){
-            std::cout << _matrix[i][j];
-           if(i != _size1-1 || j !=_size2-1) std::cout << ", ";
-        }
-        if (i != _size1-1){std::cout << '\n';};
+size_t width = 0;
+
+for (size_t i = 0; i < _size1; ++i) {
+    for (size_t j = 0; j < _size2; ++j) {
+
+        std::ostringstream ss;
+
+        ss << std::fixed
+           << std::setprecision(5)
+           << _matrix[i][j];
+
+        width = std::max(width, ss.str().length());
     }
-    std::cout << "]" << std::endl;
+}
+
+width += 2;
+
+std::cout << '\n';
+
+for (size_t i = 0; i < _size1; ++i) {
+
+    std::cout << "│";
+
+    for (size_t j = 0; j < _size2; ++j) {
+
+        std::cout
+            << std::setw(width)
+            << std::fixed
+            << std::setprecision(5)
+            << _matrix[i][j];
+    }
+
+    std::cout << " │\n";
+}
+
+std::cout << '\n';
+
 };
 
 template<typename T>

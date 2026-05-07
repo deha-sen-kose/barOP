@@ -10,6 +10,8 @@ add_executable(unitTests tests/unitTests.cpp
                         tests/trussStructureTests.cpp
                         tests/mathflbTests.cpp)
 
+set_property(TARGET unitTests PROPERTY  CXX_STANDARD 20)
+
 target_link_libraries(unitTests PRIVATE
 
     trussStructure

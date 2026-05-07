@@ -198,7 +198,7 @@ TEST(TrussStructureTest, StressesVectorHasCorrectSize)
     ASSERT_EQ(stresses.size(), 1);
 }
 
-TEST(TrussStructureTest, NumericExample3D)
+TEST(TrussStructureTest, NumericExample3DCholesky)
 {
     // Example taken from:
     // Carlos A. Felippa, 2004, Introduction to Finite Element Methods (IFEM)
@@ -247,7 +247,7 @@ TEST(TrussStructureTest, NumericExample3D)
     std::vector<double> forces = {-10, -10, -16, -10, -10};
     t1.addForces(forceDof, forces);
 
-    std::vector<double> u = t1.solveTrussSystem();
+    std::vector<double> u = t1.solveTrussSystem("cho");
 
     std::vector<double> disp_ans = {
     0.000000, 0.000000, 0.000000,
@@ -286,3 +286,93 @@ TEST(TrussStructureTest, NumericExample3D)
     }
 
 }
+
+TEST(TrussStructureTest, NumericExample3DGaussSeidel)
+{
+    // Example taken from:
+    // Carlos A. Felippa, 2004, Introduction to Finite Element Methods (IFEM)
+
+    TrussStructure t1;
+
+    Node& n1 = t1.addNode(0.000000 ,0.000000 ,0.000000);
+    Node& n2 = t1.addNode(10.000000, 5.000000, 0.000000);
+    Node& n3 = t1.addNode(10.000000, 0.000000, 0.000000);
+    Node& n4 = t1.addNode(20.000000, 8.000000, 0.000000);
+    Node& n5 = t1.addNode(20.000000, 0.000000, 0.000000);
+    Node& n6 = t1.addNode(30.000000, 9.000000, 0.000000);
+    Node& n7 = t1.addNode(30.000000, 0.000000, 0.000000);
+    Node& n8 = t1.addNode(40.000000, 8.000000, 0.000000);
+    Node& n9 = t1.addNode(40.000000, 0.000000, 0.000000);
+    Node& n10 = t1.addNode(50.000000, 5.000000, 0.000000);
+    Node& n11 = t1.addNode(50.000000, 0.000000, 0.000000);
+    Node& n12 = t1.addNode(60.000000, 0.000000, 0.000000);
+
+    Material& elemMat = t1.addMaterial("mat1", 1000.00);
+    TrussElement& e1 = t1.addTrussElement(n1, n3, elemMat, 2.00);
+    TrussElement& e2 = t1.addTrussElement(n3, n5, elemMat, 2.00);
+    TrussElement& e3 = t1.addTrussElement(n5, n7, elemMat, 2.00);
+    TrussElement& e4 = t1.addTrussElement(n7, n9, elemMat, 2.00);
+    TrussElement& e5 = t1.addTrussElement(n9, n11, elemMat, 2.00);
+    TrussElement& e6 = t1.addTrussElement(n11, n12, elemMat, 2.00);
+    TrussElement& e7 = t1.addTrussElement(n1, n2, elemMat, 10.00);
+    TrussElement& e8 = t1.addTrussElement(n2, n4, elemMat, 10.00);
+    TrussElement& e9 = t1.addTrussElement(n4, n6, elemMat, 10.00);
+    TrussElement& e10 = t1.addTrussElement(n6, n8, elemMat, 10.00);
+    TrussElement& e11 = t1.addTrussElement(n8, n10, elemMat, 10.00);
+    TrussElement& e12 = t1.addTrussElement(n10, n12, elemMat, 10.00);
+    TrussElement& e13 = t1.addTrussElement(n2, n3, elemMat, 3.00);
+    TrussElement& e14 = t1.addTrussElement(n4, n5, elemMat,3.00);
+    TrussElement& e15 = t1.addTrussElement(n6, n7, elemMat,3.00);
+    TrussElement& e16 = t1.addTrussElement(n8, n9, elemMat, 3.00);
+    TrussElement& e17 = t1.addTrussElement(n10, n11, elemMat, 3.00);
+    TrussElement& e18 = t1.addTrussElement(n2, n5, elemMat, 1.00);
+    TrussElement& e19 = t1.addTrussElement(n4, n7, elemMat, 1.00);
+    TrussElement& e20 = t1.addTrussElement(n7, n8, elemMat, 1.00);
+    TrussElement& e21 = t1.addTrussElement(n9, n10, elemMat, 1.00);
+
+    std::vector<int> homdof = {1,2,3,6,9,12,15,18,21,24,27,30,33,35,36};
+    t1.addBCs(homdof);
+    std::vector<int> forceDof = {8,14,20,26,32};
+    std::vector<double> forces = {-10, -10, -16, -10, -10};
+    t1.addForces(forceDof, forces);
+
+    std::vector<double> u = t1.solveTrussSystem("gs");
+
+    std::vector<double> disp_ans = {
+    0.000000, 0.000000, 0.000000,
+    0.809536, -1.775600, 0.000000,
+    0.280000, -1.792260, 0.000000,
+    0.899001, -2.291930, 0.000000,
+    0.560000, -2.316600, 0.000000,
+    0.847500, -2.385940, 0.000000,
+    0.847500, -2.421940, 0.000000,
+    0.795999, -2.291930, 0.000000,
+    1.135000, -2.316600, 0.000000,
+    0.885464, -1.775600, 0.000000,
+    1.415000, -1.792260, 0.000000,
+    1.695000, 0.000000, 0.000000};
+
+    EXPECT_EQ(disp_ans.size(), u.size());
+
+    for(size_t i = 0; i < disp_ans.size(); ++i){
+
+        EXPECT_NEAR(disp_ans[i], u[i], 1e-4);
+    }
+
+    std::vector<double> stress_ans = {
+    28.0000, 28.0000, 28.7500, 28.7500,28.0000,
+    28.0000,-6.2610,-6.0030,-6.0300,-6.0300,-6.0030,
+    -6.2610,3.3330,3.0830,4.0000,3.0830,3.3330,1.6770,
+    3.2020,3.2020, 1.6770};
+
+    std::vector<double> stress = t1.computeStresses(u);
+
+    EXPECT_EQ(stress_ans.size(), stress.size());
+
+    for(size_t i = 0; i < stress_ans.size(); ++i){
+
+        EXPECT_NEAR(stress_ans[i], stress[i], 1e-3);
+    }
+
+}
+
